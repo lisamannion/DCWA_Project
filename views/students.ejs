@@ -1,0 +1,26 @@
+<style>
+    table, th, td {
+        border: 1px solid black
+    }
+</style>
+<button onclick='window.location.href="http://localhost:3004/addStudent"'>Add Student</button>
+<table>
+    <tr>
+        <!-- Table headings -->
+        <th>Student ID</th>
+        <th>Student Name</th>
+        <th>GPA</th>
+        <th>Action</th>
+    </tr>
+    <!-- Create a new row for each module -->
+    <% students.forEach((student)=> { %>
+        <tr>
+            <td><%= student.sid %></td>
+            <td><%= student.name %></td>
+            <td><%= student.gpa %></td>
+            <td><a href="http://localhost:3004/students/delete/<%= student.sid %>">Delete</a></td>
+        </tr>
+    <% }) %>
+</table>
+
+<a href="http://localhost:3004/">Home</a> <br>

@@ -1,0 +1,24 @@
+<style>
+    table, th, td {
+        border: 1px solid black
+    }
+</style>
+<button onclick='window.location.href="http://localhost:3004/addLecturer"'>Add Lecturer</button>
+<table>
+    <tr>
+        <!-- Table headings -->
+        <th>Lecturer ID</th>
+        <th>Name</th>
+        <th>Dept</th>
+    </tr>
+    <!-- Create a new row for each module -->
+    <% listLect.forEach((lecturers)=> { %>
+        <tr>
+            <td><%= lecturers._id %></td>
+            <td><%= lecturers.name %></td>
+            <td><%= lecturers.dept %></td>
+        </tr>
+    <% }) %>
+</table>
+
+<a href="http://localhost:3004/">Home</a> <br>
