@@ -1,8 +1,7 @@
 <style>
-    table, th, td {
-        border: 1px solid black
-    }
+    table, th, td { border: 1px solid black }
 </style>
+<h1>Modules</h1><br><br>
 <table>
     <tr>
         <!-- Table headings -->
@@ -15,13 +14,19 @@
     <!-- Create a new row for each module -->
     <% modules.forEach((module)=> { %>
         <tr>
-            <td><%= module.mid %></td>
-            <td><%= module.name %></td>
-            <td><%= module.credits %></td>
+            <td>
+                <%= module.mid %>
+            </td>
+            <td>
+                <%= module.name %>
+            </td>
+            <td>
+                <%= module.credits %>
+            </td>
             <td><a href="http://localhost:3004/module/edit/<%= module.mid %>">Update</a></td>
             <td><a href="http://localhost:3004/module/students/<%= module.mid %>">List</a></td>
         </tr>
-    <% }) %>
+        <% }) %>
 </table>
 
 <a href="http://localhost:3004/">Home</a> <br>

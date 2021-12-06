@@ -1,8 +1,7 @@
 <style>
-    table, th, td {
-        border: 1px solid black
-    }
+    table, th, td { border: 1px solid black }
 </style>
+<h1>Lecturers</h1><br>
 <button onclick='window.location.href="http://localhost:3004/addLecturer"'>Add Lecturer</button>
 <table>
     <tr>
@@ -14,11 +13,17 @@
     <!-- Create a new row for each module -->
     <% listLect.forEach((lecturers)=> { %>
         <tr>
-            <td><%= lecturers._id %></td>
-            <td><%= lecturers.name %></td>
-            <td><%= lecturers.dept %></td>
+            <td>
+                <%= lecturers._id %>
+            </td>
+            <td>
+                <%= lecturers.name %>
+            </td>
+            <td>
+                <%= lecturers.dept %>
+            </td>
         </tr>
-    <% }) %>
+        <% }) %>
 </table>
 
 <a href="http://localhost:3004/">Home</a> <br>

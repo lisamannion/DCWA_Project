@@ -93,7 +93,7 @@ var getStudents = function () {
     })
 }
 
-// 
+// Adding a student
 var addStudent = function (sid, name, gpa) {
     return new Promise((resolve, reject) => {
         var myQuery = {
@@ -110,4 +110,21 @@ var addStudent = function (sid, name, gpa) {
     })
 }
 
-module.exports = { getModules, getModule, updateModule, listStudentsonModule, getStudents, addStudent }
+// Deleting a student
+var deleteStudent = function(sid) {
+    return new Promise((resolve, reject) => {
+        var myQuery = {
+            sql: 'delete from student where sid=?',
+            values: [sid]
+        }
+        pool.query(myQuery)
+            .then((result) => {
+                resolve(result)
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    })
+}
+
+module.exports = { getModules, getModule, updateModule, listStudentsonModule, getStudents, addStudent, deleteStudent }
