@@ -11,13 +11,13 @@ app.set('view engine', 'ejs')
 // Use body parser to see what is send in request body
 app.use(bodyParser.urlencoded({ extended: false }))
 
-// Listen for get request on '/' route (Home page)
+// Listen for get request on '/' route (Home)
 app.get('/', (req, res) => {
     // Send html file
     res.sendFile(__dirname + "/views/home.html")
 })
 
-// Listen for get request on '/listModules' route - List records in the module table (List Modules page)
+// Listen for get request on '/listModules' route - List records in the module table (List Modules)
 app.get('/listModules', (req, res) => {
     // Call the sql data access object function
     sqlDao.getModules()
@@ -29,7 +29,7 @@ app.get('/listModules', (req, res) => {
         })
 })
 
-// GET request to edit selected module - Redirect to update module view (Edit Module page)
+// GET request to edit selected module - Redirect to update module view (Edit Module)
 app.get('/module/edit/:mid', (req, res) => {
     // Calling the mySQL Data access object function
     sqlDao.getModule(req.params.mid)
@@ -41,7 +41,7 @@ app.get('/module/edit/:mid', (req, res) => {
         })
 })
 
-// POST request for Edit Module page
+// POST request for Edit Module
 app.post('/module/edit/:mid', [
     check('name').isLength({ min: 5 }).withMessage("Module name must be at least 5 characters"),
     check('credits').isIn([5, 10, 15]).withMessage("Credits can be either 5, 10 or 15")], (req, res) => {
@@ -69,7 +69,7 @@ app.get('/module/students/:mid', (req, res) => {
     // Calling DAO function
     sqlDao.listStudentsonModule(req.params.mid)
         .then((result) => {
-            // Render the studentModule view to display results
+            // Render the studentModule view to display students on chosen module
             res.render('studentModule', { students: result, mid: req.params.mid })
         })
         .catch((error) => {
@@ -83,7 +83,7 @@ app.get('/listStudents', (req, res) => {
     // Calling getStudents function from DAO
     sqlDao.getStudents()
         .then((result) => {
-            // Rendering the students view for display of results
+            // Rendering the students view
             res.render('students', { students: result })
         })
         .catch((error) => {
@@ -124,39 +124,39 @@ app.post('/addStudent', [
     check('sid').isLength(4).withMessage("Student ID must be 4 characters"),
     check('name').isLength({ min: 5 }).withMessage("Name must be at least 5 characters"),
     check('gpa').isFloat({ min: 0.0, max: 4.0 }).withMessage("GPA must be between 0.0 & 4.0")], (req, res) => {
-    var errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        res.render('addStudent', { errors: errors.errors, sid: req.body.sid, name: req.body.name, gpa: req.body.gpa })
-    } else {
-        sqlDao.addStudent(req.body.sid, req.body.name, req.body.gpa)
-            .then(() => {
-                res.redirect('/listStudents')
-            })
-            .catch((error) => {
-                if (error.errno == 1062) {
-                    res.send("<h1>Error Message</h1><br><br><h2> Student with " + req.body.sid + " already exists</h2><br>")
-                } else { // Display any other errors
-                    res.send("<h1>Other errors: </h1><br><br><h2>" + req.sqlMessage + "</h2><br>")
-                }
-            })
-    }
+        // Define result of request object validation as errors
+        var errors = validationResult(req)
+        if (!errors.isEmpty()) { // Show the errors on the addStudent view if criteria is not met
+            res.render('addStudent', { errors: errors.errors, sid: req.body.sid, name: req.body.name, gpa: req.body.gpa })
+        } else { // Call the data access object function to add the new student
+            sqlDao.addStudent(req.body.sid, req.body.name, req.body.gpa)
+                .then(() => { // Redirect to the list of students
+                    res.redirect('/listStudents')
+                })
+                .catch((error) => { // If the student was not added to the database
+                    if (error.errno == 1062) { // If id is not unique
+                        res.send("<h1>Error Message</h1><br><br><h2> Student with " + req.body.sid + " already exists</h2><br>")
+                    } else { // Display any other errors
+                        res.send("<h1>Other errors: </h1><br><br><h2>" + req.sqlMessage + "</h2><br>")
+                    }
+                })
+        }
 
-})
+    })
 
-// Listen for get request on '/listLecturers' route - List records in the lecturers collection (MongoDB)
+// Listen for get request on '/listLecturers' route - List documents in the lecturers collection - MongoDB
 app.get('/listLecturers', (req, res) => {
     // Calling the mongo DAO function
     mongoDAO.getLecturers()
-        .then((docs) => {
+        .then((docs) => { // If query is successful, render the lecturers view and display docs
             res.render('lecturers', { listLect: docs })
         })
-        .catch((error) => {
+        .catch((error) => { // If there are any errors
             res.send(error)
-            console.log(error)
         })
 })
 
-// GET request to add new lecturer
+// GET request to add new lecturer (Adding Lecturer)
 app.get('/addLecturer', (req, res) => {
     // Rendering the addLecturer view (form)
     res.render('addLecturer', { errors: undefined })
@@ -166,30 +166,32 @@ app.get('/addLecturer', (req, res) => {
 app.post('/addLecturer', [
     check('_id').isLength(4).withMessage("Lecturer ID must be 4 characters"),
     check('name').isLength({ min: 5 }).withMessage("Name must be at least 5 characters"),
-    check('dept').isLength(3).withMessage("Department must be 3 characters")], (req, res) => {
-
-    var errors = validationResult(req)
-
-    // If there are errors render the view again
-    if (!errors.isEmpty()) {
-        res.render('addLecturer', { errors: errors.errors, _id: req.body._id, name: req.body.name, dept: req.body.dept })
-    } else { // Otherwise query the database using data access object
-        mongoDAO.addLecturer(req.body._id, req.body.name, req.body.dept)
-            .then(() => {
-                // Redirect to GET on /listLecturers
-                res.redirect('/listLecturers')
-            })
-            .catch((error) => {
-                res.send(error)
-
-                // if(error.errno == 1062) {
-                //     res.send("<h1>Error Message</h1><br><br><h2> Student with "  + req.body.sid + " already exists</h2><br>")
-                // } else { // Display any other errors
-                //     res.send("<h1>Other errors: </h1><br><br><h2>" + req.sqlMessage + "</h2><br>")
-                // }
-            })
-    }
-})
+    check('dept').isLength(3).withMessage("Department must be 3 characters")], async (req, res) => {
+        // Storing data validation errors
+        var errors = validationResult(req)
+        // Storing the new department for comparison against result
+        var submitDept = req.body.dept
+        var isDeptFound = 0
+        console.log(errors)
+        if (!errors.isEmpty()) { // Rerender the view if there are validation errors
+            res.render('addLecturer', { errors: errors.errors, _id: req.body._id, name: req.body.name, dept: req.body.dept })
+        } else { // Otherwise query the database using data access object
+            await sqlDao.checkDeptExist(submitDept)
+                .then((result) => {
+                    isDeptFound = result[0].found
+                })
+            if (isDeptFound === 1) {
+                mongoDAO.addLecturer(req.body._id, req.body.name, req.body.dept)
+                    .then(() => {
+                        // Redirect to GET on /listLecturers
+                        res.redirect('/listLecturers')
+                    })
+            } else {
+                // errors.errors.push('Dept does not exist')
+                res.render('addLecturer', { errors: errors.errors, deptErr: "Department does not exist", _id: req.body._id, name: req.body.name, dept: req.body.dept })
+            }
+        }
+    })
 
 // Setting up the localhost to listen for requests on port 3004
 app.listen(3004, () => {

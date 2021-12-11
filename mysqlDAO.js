@@ -47,6 +47,7 @@ var getModule = function (mid) {
     })
 }
 
+// Updating a module
 var updateModule = function(mid, name, credits) {
     return new Promise((resolve, reject) => {
         var myQuery = {
@@ -63,6 +64,7 @@ var updateModule = function(mid, name, credits) {
     })
 }
 
+// List the students that are taking the chosen module
 var listStudentsonModule = function(mid) {
     return new Promise((resolve, reject) => {
         var myQuery = {
@@ -79,7 +81,7 @@ var listStudentsonModule = function(mid) {
     })
 }
 
-// Returns all modules from database
+// Returns all student's details from database
 var getStudents = function () {
     return new Promise((resolve, reject) => {
         // Querying the database
@@ -127,4 +129,22 @@ var deleteStudent = function(sid) {
     })
 }
 
-module.exports = { getModules, getModule, updateModule, listStudentsonModule, getStudents, addStudent, deleteStudent }
+// Check that department exists in database
+var checkDeptExist = function(dept){
+    return new Promise((resolve, reject) => {
+        var myQuery = {
+            sql: 'select count(did) as found from dept where did = ?',
+            values: [dept]
+        }
+        pool.query(myQuery)
+            .then((result) => {
+                resolve(result)
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    })
+}
+
+// Exports
+module.exports = { getModules, getModule, updateModule, listStudentsonModule, getStudents, addStudent, deleteStudent, checkDeptExist }
