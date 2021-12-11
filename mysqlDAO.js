@@ -146,5 +146,19 @@ var checkDeptExist = function(dept){
     })
 }
 
+// Getting the departments table results for listing of departments
+var getDepartments = function () {
+    return new Promise((resolve, reject) => {
+        // Querying the database
+        pool.query('select * from dept')
+            .then((result) => { // If all ok with the query
+                resolve(result) // Resolve this promise - send back the result
+            })
+            .catch((error) => { // If there are query errors
+                reject(error) // Reject this promise - send back error message
+            })
+    })
+}
+
 // Exports
-module.exports = { getModules, getModule, updateModule, listStudentsonModule, getStudents, addStudent, deleteStudent, checkDeptExist }
+module.exports = { getModules, getModule, updateModule, listStudentsonModule, getStudents, addStudent, deleteStudent, checkDeptExist, getDepartments }

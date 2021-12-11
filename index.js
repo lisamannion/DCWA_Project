@@ -46,7 +46,7 @@ app.post('/module/edit/:mid', [
     check('name').isLength({ min: 5 }).withMessage("Module name must be at least 5 characters"),
     check('credits').isIn([5, 10, 15]).withMessage("Credits can be either 5, 10 or 15")], (req, res) => {
         var errors = validationResult(req)
-        // If there are errors, render the update module view again
+        // If there are errors, render the update module view again with the fields containing rejected module details
         if (!errors.isEmpty()) {
             res.render('updateModule', { errors: errors.errors, mid: req.params.mid, name: req.body.name, credits: req.body.credits })
         } else {
@@ -126,6 +126,7 @@ app.post('/addStudent', [
     check('gpa').isFloat({ min: 0.0, max: 4.0 }).withMessage("GPA must be between 0.0 & 4.0")], (req, res) => {
         // Define result of request object validation as errors
         var errors = validationResult(req)
+
         if (!errors.isEmpty()) { // Show the errors on the addStudent view if criteria is not met
             res.render('addStudent', { errors: errors.errors, sid: req.body.sid, name: req.body.name, gpa: req.body.gpa })
         } else { // Call the data access object function to add the new student
@@ -171,16 +172,22 @@ app.post('/addLecturer', [
         var errors = validationResult(req)
         // Storing the new department for comparison against result
         var submitDept = req.body.dept
+        // Flag variable to indicate if department is found or not
         var isDeptFound = 0
-        console.log(errors)
+
         if (!errors.isEmpty()) { // Rerender the view if there are validation errors
             res.render('addLecturer', { errors: errors.errors, _id: req.body._id, name: req.body.name, dept: req.body.dept })
-        } else { // Otherwise query the database using data access object
+        } else {
+            // Otherwise query the database using data access object
             await sqlDao.checkDeptExist(submitDept)
                 .then((result) => {
+                    // If department is found set the value to 1
                     isDeptFound = result[0].found
                 })
+
+            // If department is found
             if (isDeptFound === 1) {
+                // Add the new lecturer to the Mongo database
                 mongoDAO.addLecturer(req.body._id, req.body.name, req.body.dept)
                     .then(() => {
                         // Redirect to GET on /listLecturers
@@ -192,6 +199,17 @@ app.post('/addLecturer', [
             }
         }
     })
+
+app.get('/listDepartments', (req, res) => {
+    // Call the sql data access object function
+    sqlDao.getDepartments()
+        .then((result) => { // If successful render modules view 
+            res.render('department', { depts: result })
+        })
+        .catch((error) => { // If any errors
+            res.send(error)
+        })
+})
 
 // Setting up the localhost to listen for requests on port 3004
 app.listen(3004, () => {

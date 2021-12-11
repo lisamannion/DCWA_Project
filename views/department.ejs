@@ -1,0 +1,24 @@
+<style>
+    table, th, td { border: 1px solid black }
+</style>
+<h1>Departments</h1><br>
+<table>
+    <tr>
+        <!-- Table headings -->
+        <th>Department ID</th>
+        <th>Name</th>
+    </tr>
+    <!-- Create a new row for each module -->
+    <% depts.forEach((dept)=> { %>
+        <tr>
+            <td>
+                <%= dept.did %>
+            </td>
+            <td>
+                <%= dept.name %>
+            </td>
+        </tr>
+        <% }) %>
+</table>
+
+<a href="http://localhost:3004/">Home</a> <br>
